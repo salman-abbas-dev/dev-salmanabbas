@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; // 1. Imported useRouter
 import Sidebar from "@/app/admin/Sidebar";
 import { supabase } from "@/lib/supabase";
 import Swal from "sweetalert2";
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 export default function AdminCommentsPage() {
+  const router = useRouter(); // 2. Initialized router
   const [comments, setComments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState<Record<number, string>>({});
@@ -73,6 +75,8 @@ export default function AdminCommentsPage() {
     await supabase.from("comments").delete().eq("id", id);
 
     setComments((prev) => prev.filter((item) => item.id !== id));
+    
+    router.refresh(); // 3. Forces Next.js to dump the cache and refresh
 
     Swal.fire({
       title: "Deleted",

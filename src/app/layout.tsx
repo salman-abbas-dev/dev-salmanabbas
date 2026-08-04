@@ -1,5 +1,6 @@
 import "./globals.css";
 import RefreshRedirect from '@/components/RefreshRedirect'
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: "Salman | Fullstack Developer",
