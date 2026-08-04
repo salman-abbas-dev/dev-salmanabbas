@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+import Swal from 'sweetalert2'
 import { motion, Variants } from 'framer-motion'
 import {
   Send,
@@ -13,8 +15,6 @@ import {
   FaLinkedinIn,
   FaInstagram,
   FaGithub,
-  FaYoutube,
-  FaTiktok,
 } from 'react-icons/fa'
 
 const smoothEase: [number, number, number, number] = [
@@ -55,6 +55,54 @@ const socialLinks = [
 ]
 
 export default function ContactForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setIsSubmitting(true)
+
+    // 1. Save a reference to the form right away
+    const form = event.currentTarget
+
+    const formData = new FormData(form)
+    formData.append("access_key", "83479e0b-67ea-494b-a93d-f65d50c92fdd")
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        Swal.fire({
+          title: "Message Sent!",
+          text: "Thanks for reaching out. I'll get back to you soon.",
+          icon: "success",
+          background: "#111",
+          color: "#fff",
+          confirmButtonColor: "#333",
+        })
+        // 2. Use that saved reference to clear the inputs
+        form.reset()
+      } else {
+        throw new Error(data.message)
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "Something went wrong. Please try again later.",
+        icon: "error",
+        background: "#111",
+        color: "#fff",
+        confirmButtonColor: "#333",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -40 }}
@@ -82,7 +130,7 @@ export default function ContactForm() {
       </motion.div>
 
       {/* FORM */}
-      <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* NAME */}
         <motion.div
           variants={fieldVariants}
@@ -95,6 +143,9 @@ export default function ContactForm() {
             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
 
             <input
+              name="name"
+              type="text"
+              required
               placeholder="Your Name"
               className="w-full rounded-2xl border border-white/15 bg-black/20 pl-12 pr-4 py-4 outline-none transition duration-200 focus:border-white focus:ring-1 focus:ring-white/40"
             />
@@ -113,6 +164,9 @@ export default function ContactForm() {
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
 
             <input
+              name="email"
+              type="email"
+              required
               placeholder="Your Email"
               className="w-full rounded-2xl border border-white/15 bg-black/20 pl-12 pr-4 py-4 outline-none transition duration-200 focus:border-white focus:ring-1 focus:ring-white/40"
             />
@@ -131,6 +185,8 @@ export default function ContactForm() {
             <MessageSquare className="absolute left-4 top-5 text-white/40" />
 
             <textarea
+              name="message"
+              required
               rows={5}
               placeholder="Your Message"
               className="w-full rounded-2xl border border-white/15 bg-black/20 pl-12 pr-4 py-4 outline-none resize-none transition duration-200 focus:border-white focus:ring-1 focus:ring-white/40"
@@ -140,6 +196,8 @@ export default function ContactForm() {
 
         {/* BUTTON */}
         <motion.button
+          type="submit"
+          disabled={isSubmitting}
           variants={fieldVariants}
           initial="hidden"
           whileInView="show"
@@ -150,12 +208,12 @@ export default function ContactForm() {
             transition: { duration: 0.12 },
           }}
           whileTap={{ scale: 0.97 }}
-          className="w-full rounded-2xl py-4 bg-white/10 border border-white/10 flex items-center justify-center gap-2"
+          className="w-full rounded-2xl py-4 bg-white/10 border border-white/10 flex items-center justify-center gap-2 disabled:opacity-50"
         >
           <Send size={16} />
-          Send Message
+          {isSubmitting ? "Sending..." : "Send Message"}
         </motion.button>
-      </div>
+      </form>
 
       {/* SOCIAL */}
       <div className="border-t border-white/10 pt-5 mt-6">
