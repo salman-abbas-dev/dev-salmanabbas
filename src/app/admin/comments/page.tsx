@@ -72,11 +72,24 @@ export default function AdminCommentsPage() {
 
     if (!result.isConfirmed) return;
 
-    await supabase.from("comments").delete().eq("id", id);
+    // We changed this line to capture any errors from Supabase
+    const { error } = await supabase.from("comments").delete().eq("id", id);
+
+    // If Supabase blocks the delete, show the exact error message!
+    if (error) {
+      Swal.fire({
+        title: "Database Error",
+        text: error.message,
+        icon: "error",
+        background: "#0f0f0f",
+        color: "#fff",
+      });
+      return; 
+    }
 
     setComments((prev) => prev.filter((item) => item.id !== id));
     
-    router.refresh(); // 3. Forces Next.js to dump the cache and refresh
+    router.refresh(); 
 
     Swal.fire({
       title: "Deleted",
