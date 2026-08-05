@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
-import { Upload, Heart, Pin } from 'lucide-react'
+import { Heart, Pin } from 'lucide-react'
 import useComments from '@/hooks/useComments'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
@@ -32,23 +32,10 @@ const itemVariants: Variants = {
 }
 
 export default function CommentsSection() {
-  const { comments, loading, addComment, likeComment } =
-    useComments()
+  const { comments, loading, addComment, likeComment } = useComments()
 
   const [name, setName] = useState('')
   const [comment, setComment] = useState('')
-  const [image, setImage] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
-
-  const handleImage = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    setImage(file)
-    setPreview(URL.createObjectURL(file))
-  }
 
   const handleSubmit = async () => {
     if (!name.trim() || !comment.trim()) return
@@ -56,13 +43,12 @@ export default function CommentsSection() {
     await addComment({
       name,
       comment,
-      image,
+      // Pass null or simply omit the image field if your hook allows it
+      image: null, 
     })
 
     setName('')
     setComment('')
-    setImage(null)
-    setPreview(null)
   }
 
   return (
@@ -111,37 +97,6 @@ export default function CommentsSection() {
           placeholder="Your Comment"
           className="w-full rounded-2xl border border-white/15 bg-black/20 px-4 py-3 md:py-4 outline-none resize-none focus:border-white"
         />
-
-        <motion.label
-          variants={itemVariants}
-          className="rounded-2xl border border-dashed border-white/15 bg-black/20 p-3 md:p-4 flex items-center gap-3 cursor-pointer"
-        >
-          <Upload size={16} />
-
-          <span className="text-xs md:text-sm text-white/65">
-            Upload Image
-          </span>
-
-          <input
-            hidden
-            type="file"
-            accept="image/*"
-            onChange={handleImage}
-          />
-        </motion.label>
-
-        <AnimatePresence>
-          {preview && (
-            <motion.img
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              src={preview}
-              alt="Preview"
-              className="rounded-2xl h-36 md:h-44 w-full object-cover border border-white/10"
-            />
-          )}
-        </AnimatePresence>
 
         <motion.button
           variants={itemVariants}
@@ -223,6 +178,7 @@ export default function CommentsSection() {
                       {item.comment}
                     </p>
 
+                    {/* Left this intact so previously uploaded images still display properly */}
                     {item.image_url && (
                       <img
                         src={item.image_url}
