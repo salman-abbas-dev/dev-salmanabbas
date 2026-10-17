@@ -50,7 +50,7 @@ const socialLinks = [
     title: 'Instagram',
     user: '@instagram',
     icon: FaInstagram,
-    link: 'https://www.instagram.com/https.sallu_/',
+    link: 'https://www.instagram.com/mert.era_',
   }
 ]
 
